@@ -1,0 +1,7 @@
+# ML dependencies -- only needed for MODE=wd or MODE=blip.
+# On CPU-only machines install torch first from the CPU wheel index:
+#   pip install torch --index-url https://download.pytorch.org/whl/cpu
+#   pip install -r requirements-ml.txt
+torch>=2.1
+transformers>=4.38
+huggingface_hub>=0.20

@@ -1,0 +1,47 @@
+services:
+  api:
+    build: .
+    image: dataset-studio
+    container_name: dataset-studio
+    ports:
+      - '${PORT:-8787}:8787'
+    environment:
+      DATA_DIR: /data
+      MAX_UPLOAD_MB: ${MAX_UPLOAD_MB:-40}
+      TAGGER_URL: http://tagger:8790
+      # 限制「从目录导入」和自定义导出目录能触及的服务器路径，留空表示不限制
+      IMPORT_ROOT: ${IMPORT_ROOT:-/data/imports}
+    volumes:
+      - ./data:/data
+      - ${IMPORT_HOST_DIR:-./imports}:/data/imports
+    restart: unless-stopped
+
+  tagger:
+    build:
+      context: ./tagger
+      args:
+        TORCH_INDEX: ${TORCH_INDEX:-https://download.pytorch.org/whl/cpu}
+    image: dataset-studio-tagger
+    container_name: dataset-studio-tagger
+    environment:
+      MODE: ${TAGGER_MODE:-auto}
+      DEVICE: ${TAGGER_DEVICE:-auto}
+      THRESHOLD: ${TAGGER_THRESHOLD:-0.35}
+      MAX_TAGS: ${TAGGER_MAX_TAGS:-30}
+      EAGER: ${TAGGER_EAGER:-0}
+    volumes:
+      - tagger-models:/root/.cache/huggingface
+    expose:
+      - '8790'
+    restart: unless-stopped
+    # 需要 GPU 时取消注释（并用 TORCH_INDEX=.../whl/cu121 重新构建）
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: all
+    #           capabilities: [gpu]
+
+volumes:
+  tagger-models:

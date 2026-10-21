@@ -1,0 +1,13 @@
+node_modules/
+dist/
+web/dist/
+data/
+imports/
+.demo/
+*.log
+.env
+.env.*
+!.env.example
+__pycache__/
+*.pyc
+.venv/
